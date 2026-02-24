@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Hub - Sistema Profesional de Encuestas</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    
+    <!-- Google Charts -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --bg-dark: #0a0e1a;
+            --bg-darker: #050810;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-dark);
+            color: #fff;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+            animation: pulse 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* Top Navigation */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 72px;
+            background: rgba(10, 14, 26, 0.7);
+            backdrop-filter: blur(24px) saturate(180%);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding: 0 2rem;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        .logo-text {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, rgba(255,255,255,0.8));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .top-nav-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--gray-300);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .top-nav-btn:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.3);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        /* Layout */
+        .main-layout {
+            display: flex;
+            margin-top: 72px;
+            min-height: calc(100vh - 72px);
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(24px) saturate(180%);
+            border-right: 1px solid rgba(99, 102, 241, 0.08);
+            padding: 2rem 0.75rem;
+            position: fixed;
+            left: 0;
+            top: 72px;
+            bottom: 0;
+            overflow-y: auto;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 2.5rem;
+        }
+        
+        .sidebar-title {
+            color: var(--gray-500);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 1rem;
+            padding: 0 1rem;
+        }
+        
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 1rem 1.25rem;
+            border-radius: 14px;
+            color: var(--gray-400);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-link-custom i {
+            font-size: 1.3rem;
+            width: 24px;
+        }
+        
+        .nav-link-custom:hover {
+            background: rgba(99, 102, 241, 0.08);
+            color: #fff;
+            transform: translateX(4px);
+        }
+        
+        .nav-link-custom.active {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+            color: #fff;
+            box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.2);
+        }
+        
+        .nav-link-custom.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            border-radius: 0 4px 4px 0;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 2.5rem;
+            max-width: calc(100% - 280px);
+        }
+        
+        .content-header {
+            margin-bottom: 2.5rem;
+        }
+        
+        .content-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .content-title i {
+            font-size: 2rem;
+        }
+        
+        .content-subtitle {
+            color: var(--gray-400);
+            font-size: 1.1rem;
+        }
+        
+        /* Modern Card */
+        .modern-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .modern-card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(99, 102, 241, 0.1);
+            transform: translateY(-4px);
+        }
+        
+        .card-header-modern {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .card-title-modern {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        
+        .card-title-modern i {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 14px;
+            font-size: 1.4rem;
+            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+        }
+        
+        /* Survey Item */
+        .survey-item-modern {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 18px;
+            padding: 2rem;
+            margin-bottom: 1.25rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .survey-item-modern:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(99, 102, 241, 0.2);
+        }
+        
+        .survey-item-modern h5 {
+            color: #fff;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+        
+        .survey-item-modern p {
+            color: var(--gray-400);
+            margin-bottom: 1.25rem;
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+        
+        /* Badges */
+        .badge-modern {
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .badge-primary-modern {
+            background: rgba(99, 102, 241, 0.15);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        
+        .badge-secondary-modern {
+            background: rgba(139, 92, 246, 0.15);
+            color: #c4b5fd;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        
+        /* Buttons */
+        .btn-modern {
+            padding: 1rem 2rem;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-modern::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn-modern:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-modern:active {
+            transform: scale(0.96);
+        }
+        
+        .btn-primary-modern {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-primary-modern:hover {
+            box-shadow: 0 12px 28px rgba(99, 102, 241, 0.5);
+            transform: translateY(-3px);
+        }
+        
+        .btn-danger-modern {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+        
+        .btn-danger-modern:hover {
+            box-shadow: 0 12px 28px rgba(239, 68, 68, 0.5);
+            transform: translateY(-3px);
+        }
+        
+        .btn-success-modern {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-success-modern:hover {
+            box-shadow: 0 12px 28px rgba(16, 185, 129, 0.5);
+            transform: translateY(-3px);
+        }
+        
+        /* Form Controls */
+        .form-control-modern {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 1rem 1.5rem;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .form-control-modern::placeholder {
+            color: var(--gray-600);
+        }
+        
+        .form-control-modern:focus {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            outline: none;
+        }
+        
+        .form-label-modern {
+            color: var(--gray-300);
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            display: block;
+            font-size: 0.95rem;
+        }
+        
+        /* Question Card */
+        .question-card-modern {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 18px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .question-card-modern h6 {
+            color: #fff;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+        }
+        
+        /* Charts */
+        .chart-container-modern {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 18px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-title-modern {
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Alerts */
+        .alert-modern {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 1.25rem 1.75rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-success-modern {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+        }
+        
+        .alert-info-modern {
+            background: rgba(59, 130, 246, 0.08);
+            border-color: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+        }
+        
+        .text-responses-modern {
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 4px solid var(--primary);
+            padding: 1.25rem;
+            margin: 0.75rem 0;
+            border-radius: 0 12px 12px 0;
+            color: var(--gray-300);
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Utility Classes */
+        .d-flex { display: flex; }
+        .align-items-start { align-items: flex-start; }
+        .align-items-center { align-items: center; }
+        .justify-content-between { justify-content: space-between; }
+        .gap-3 { gap: 1rem; }
+        .flex-grow-1 { flex-grow: 1; }
+        .mb-4 { margin-bottom: 1.5rem; }
+        .mt-4 { margin-top: 1.5rem; }
+        .me-2 { margin-right: 0.5rem; }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.4);
+            border-radius: 6px;
+        }
+        
+            ::-webkit-scrollbar-thumb:hover {
+                background: rgba(99, 102, 241, 0.6);
+            }
+
+            /* Login Styles */
+            .login-container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: calc(100vh - 72px);
+                width: 100%;
+                padding: 2rem;
+            }
+
+            .login-card {
+                background: rgba(15, 23, 42, 0.6);
+                backdrop-filter: blur(24px) saturate(180%);
+                border: 1px solid rgba(99, 102, 241, 0.2);
+                border-radius: 24px;
+                padding: 3rem;
+                width: 100%;
+                max-width: 480px;
+                box-shadow: 0 24px 48px rgba(0, 0, 0, 0.3);
+            }
+
+            .login-header {
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+
+            .login-header h2 {
+                font-size: 2rem;
+                font-weight: 800;
+                margin-bottom: 0.5rem;
+                background: linear-gradient(135deg, #fff, rgba(255,255,255,0.7));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            .login-header p {
+                color: var(--gray-400);
+                font-size: 1.05rem;
+            }
+
+            .login-tabs {
+                display: flex;
+                gap: 1rem;
+                margin-bottom: 2rem;
+                background: rgba(255, 255, 255, 0.02);
+                padding: 0.5rem;
+                border-radius: 16px;
+            }
+
+            .login-tab {
+                flex: 1;
+                padding: 1rem;
+                border: none;
+                background: transparent;
+                color: var(--gray-400);
+                font-weight: 600;
+                border-radius: 12px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            .login-tab.active {
+                background: linear-gradient(135deg, var(--primary), var(--secondary));
+                color: white;
+                box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            }
+
+            .login-form {
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .btn-full {
+                width: 100%;
+            }
+
+            .error-message {
+                color: var(--danger);
+                font-size: 0.9rem;
+                text-align: center;
+                padding: 0.75rem;
+                background: rgba(239, 68, 68, 0.1);
+                border: 1px solid rgba(239, 68, 68, 0.3);
+                border-radius: 10px;
+                display: none;
+            }
+
+            .error-message.show {
+                display: block;
+            }
+
+            .login-footer {
+                margin-top: 2rem;
+                padding-top: 2rem;
+                border-top: 1px solid rgba(255, 255, 255, 0.06);
+                text-align: center;
+                color: var(--gray-500);
+                font-size: 0.9rem;
+            }
+
+            .login-footer strong {
+                color: var(--primary);
+            }
+
+            .form-group-modern {
+                margin-bottom: 1.5rem;
+            }
+
+            .input-modern {
+                background: rgba(255, 255, 255, 0.03);
+                border: 2px solid rgba(255, 255, 255, 0.08);
+                border-radius: 14px;
+                padding: 1rem 1.5rem;
+                color: #fff;
+                font-size: 1rem;
+                transition: all 0.3s ease;
+                width: 100%;
+            }
+
+            .input-modern::placeholder {
+                color: var(--gray-600);
+            }
+
+            .input-modern:focus {
+                background: rgba(255, 255, 255, 0.05);
+                border-color: var(--primary);
+                box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+                outline: none;
+            }
+
+            /* Responsive */
+            @media (max-width: 768px) {
+                .sidebar {
+                    transform: translateX(-100%);
+                }
+
+                .main-content {
+                    margin-left: 0;
+                    max-width: 100%;
+                    padding: 1.5rem;
+                }
+
+                .top-nav {
+                    padding: 0 1rem;
+                }
+
+                .content-title {
+                    font-size: 2rem;
+                }
+
+                .login-card {
+                    padding: 1.5rem 1.25rem;
+                    max-width: 380px;
+                }
+
+                .login-header h2 {
+                    font-size: 1.3rem;
+                }
+
+                .login-header p {
+                    font-size: 0.85rem;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .login-card {
+                    padding: 1.25rem 1rem;
+                }
+
+                .login-form .btn-modern {
+                    max-width: 100%;
+                }
+            }
+        </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <a href="#" class="logo">
+            <div class="logo-icon">
+                <i class="bi bi-clipboard-data"></i>
+            </div>
+            <span class="logo-text">Sistemas de Encuestas</span>
+        </a>
+            <div class="nav-actions" id="navActions">
+                <span id="userWelcome" style="display:none; color: var(--gray-300); margin-right: 1rem; font-weight: 600;"></span>
+                <button class="top-nav-btn" id="logoutBtn" style="display:none;" title="Cerrar Sesión">
+                    <i class="bi bi-box-arrow-right"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Layout -->
+        <div class="main-layout">
+            <!-- Login View -->
+            <div id="loginView" class="login-container">
+                <div class="login-card">
+                    <div class="login-header">
+                        <div class="logo-icon" style="margin: 0 auto 1.5rem;">
+                            <i class="bi bi-clipboard-data"></i>
+                        </div>
+                        <h2>Bienvenido a Sistemas de Encuestas</h2>
+                        <p>Sistema Profesional de Encuestas y Analíticas</p>
+                    </div>
+
+                    <div class="login-tabs">
+                        <button class="login-tab active" id="loginTab">Iniciar Sesión</button>
+                        <button class="login-tab" id="registerTab">Registrarse</button>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form id="loginForm" class="login-form">
+                        <div class="form-group-modern">
+                            <label class="form-label-modern">
+                                <i class="bi bi-envelope"></i>
+                                Correo Electrónico
+                            </label>
+                            <input type="email" class="input-modern" id="loginEmail" required placeholder="tu@email.com">
+                        </div>
+                        <div class="form-group-modern">
+                            <label class="form-label-modern">
+                                <i class="bi bi-lock"></i>
+                                Contraseña
+                            </label>
+                            <input type="password" class="input-modern" id="loginPassword" required placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="btn-modern btn-primary-modern btn-full">
+                            <i class="bi bi-box-arrow-in-right"></i>
+                            Iniciar Sesión
+                        </button>
+                        <div id="loginError" class="error-message"></div>
+                    </form>
+
+                    <!-- Register Form -->
+                    <form id="registerForm" class="login-form" style="display:none;">
+                        <div class="form-group-modern">
+                            <label class="form-label-modern">
+                                <i class="bi bi-person"></i>
+                                Nombre Completo
+                            </label>
+                            <input type="text" class="input-modern" id="registerFullName" required placeholder="Juan Pérez">
+                        </div>
+                        <div class="form-group-modern">
+                            <label class="form-label-modern">
+                                <i class="bi bi-envelope"></i>
+                                Correo Electrónico
+                            </label>
+                            <input type="email" class="input-modern" id="registerEmail" required placeholder="tu@email.com">
+                        </div>
+                        <div class="form-group-modern">
+                            <label class="form-label-modern">
+                                <i class="bi bi-lock"></i>
+                                Contraseña
+                            </label>
+                            <input type="password" class="input-modern" id="registerPassword" required placeholder="••••••••" minlength="6">
+                        </div>
+                        <button type="submit" class="btn-modern btn-primary-modern btn-full">
+                            <i class="bi bi-person-plus"></i>
+                            Crear Cuenta
+                        </button>
+                                    <div id="registerError" class="error-message"></div>
+                                </form>
+                            </div>
+                        </div>
+
+            <!-- Sidebar -->
+            <aside class="sidebar" id="appSidebar" style="display:none;">
+            <div class="sidebar-section">
+                <h6 class="sidebar-title">MENU PRINCIPAL</h6>
+                <nav>
+                    <a href="#" class="nav-link-custom active" data-view="surveys">
+                        <i class="bi bi-grid"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="nav-link-custom" data-view="create">
+                        <i class="bi bi-plus-circle"></i>
+                        <span>Nueva Encuesta</span>
+                    </a>
+                    <a href="#" class="nav-link-custom" data-view="respond">
+                        <i class="bi bi-pencil-square"></i>
+                        <span>Responder</span>
+                    </a>
+                    <a href="#" class="nav-link-custom" data-view="analytics">
+                        <i class="bi bi-graph-up-arrow"></i>
+                        <span>Analiticas</span>
+                    </a>
+                    <a href="#" class="nav-link-custom" data-view="responses" id="responsesMenuLink" style="display:none;">
+                        <i class="bi bi-chat-left-text"></i>
+                        <span>Respuestas</span>
+                    </a>
+                    <a href="#" class="nav-link-custom" data-view="users" id="usersMenuLink" style="display:none;">
+                        <i class="bi bi-people"></i>
+                        <span>Usuarios</span>
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="sidebar-section">
+                <h6 class="sidebar-title">HERRAMIENTAS</h6>
+                <nav>
+                    <a href="#" class="nav-link-custom" data-view="settings">
+                        <i class="bi bi-gear"></i>
+                        <span>Configuracion</span>
+                    </a>
+                    <a href="#" class="nav-link-custom" data-view="help">
+                        <i class="bi bi-question-circle"></i>
+                        <span>Ayuda</span>
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="appContent" style="display:none;">
+            <!-- Surveys View -->
+            <div id="surveysView" class="fade-in">
+                <div class="content-header">
+                    <h1 class="content-title">
+                        <i class="bi bi-clipboard-check" style="color: var(--primary);"></i>
+                        Mis Encuestas
+                    </h1>
+                    <p class="content-subtitle">Administra y visualiza tus encuestas en tiempo real</p>
+                </div>
+                
+                <div class="modern-card">
+                    <div class="card-header-modern">
+                        <div class="card-title-modern">
+                            <i class="bi bi-list-ul"></i>
+                            Encuestas Activas
+                        </div>
+                        <button class="btn-modern btn-primary-modern" id="newSurveyBtn" onclick="document.querySelector('[data-view=create]').click()">
+                            <i class="bi bi-plus-lg"></i>
+                            Nueva Encuesta
+                        </button>
+                    </div>
+                    <div id="surveysList"></div>
+                </div>
+            </div>
+
+            <!-- Create Survey View -->
+            <div id="createView" style="display: none;">
+                <div class="content-header">
+                    <h1 class="content-title">
+                        <i class="bi bi-plus-circle" style="color: var(--success);"></i>
+                        Crear Nueva Encuesta
+                    </h1>
+                    <p class="content-subtitle">Diseña tu encuesta personalizada en minutos</p>
+                </div>
+                
+                <div class="modern-card">
+                    <form id="createSurveyForm">
+                        <div class="mb-4">
+                            <label class="form-label-modern">Titulo de la Encuesta</label>
+                            <input type="text" class="form-control-modern" id="surveyTitle" placeholder="Ej: Satisfaccion del Cliente 2024" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label-modern">Descripcion</label>
+                            <textarea class="form-control-modern" id="surveyDescription" rows="3" placeholder="Describe el proposito de esta encuesta..." required></textarea>
+                        </div>
+                        
+                        <div class="card-header-modern">
+                            <div class="card-title-modern">
+                                <i class="bi bi-patch-question"></i>
+                                Preguntas
+                            </div>
+                            <button type="button" class="btn-modern btn-primary-modern" id="addQuestionBtn">
+                                <i class="bi bi-plus-lg"></i>
+                                Agregar Pregunta
+                            </button>
+                        </div>
+                        
+                        <div id="questionsContainer" class="mt-4"></div>
+                        
+                        <div class="d-flex gap-3 mt-4">
+                            <button type="submit" class="btn-modern btn-success-modern flex-grow-1">
+                                <i class="bi bi-check-circle"></i>
+                                Guardar Encuesta
+                            </button>
+                            <button type="button" class="btn-modern btn-danger-modern" onclick="document.getElementById('createSurveyForm').reset(); document.getElementById('questionsContainer').innerHTML = '';">
+                                <i class="bi bi-x-circle"></i>
+                                Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Respond View -->
+            <div id="respondView" style="display: none;">
+                <div class="content-header">
+                    <h1 class="content-title">
+                        <i class="bi bi-pencil-square" style="color: var(--info);"></i>
+                        Responder Encuesta
+                    </h1>
+                    <p class="content-subtitle">Comparte tu opinion respondiendo una encuesta</p>
+                </div>
+                
+                <div class="modern-card">
+                    <div class="mb-4">
+                        <label class="form-label-modern">Selecciona una Encuesta</label>
+                        <select class="form-control-modern" id="surveySelectRespond">
+                            <option value="">-- Seleccionar Encuesta --</option>
+                        </select>
+                    </div>
+                    <div id="respondContainer"></div>
+                </div>
+            </div>
+
+            <!-- Analytics View -->
+            <div id="analyticsView" style="display: none;">
+                <div class="content-header">
+                    <h1 class="content-title">
+                        <i class="bi bi-graph-up-arrow" style="color: var(--warning);"></i>
+                        Panel de Analiticas
+                    </h1>
+                    <p class="content-subtitle">Visualiza estadisticas y resultados en tiempo real</p>
+                </div>
+
+                <div class="modern-card">
+                    <div class="mb-4">
+                        <label class="form-label-modern">Selecciona una Encuesta</label>
+                        <select class="form-control-modern" id="surveySelectAnalytics">
+                            <option value="">-- Seleccionar Encuesta --</option>
+                        </select>
+                    </div>
+                    <div id="analyticsContainer"></div>
+                </div>
+            </div>
+
+            <!-- Responses View (Admin Only) -->
+            <div id="responsesView" style="display: none;">
+                <div class="content-header">
+                    <h1 class="content-title">
+                        <i class="bi bi-chat-left-text" style="color: var(--secondary);"></i>
+                        Registro de Respuestas
+                    </h1>
+                    <p class="content-subtitle">Visualiza quién ha respondido cada encuesta y cuándo</p>
+                </div>
+
+                <div class="modern-card">
+                    <div class="mb-4">
+                        <label class="form-label-modern">Selecciona una Encuesta</label>
+                        <select class="form-control-modern" id="surveySelectResponses">
+                            <option value="">-- Seleccionar Encuesta --</option>
+                        </select>
+                    </div>
+                    <div id="responsesContainer"></div>
+                </div>
+            </div>
+
+            <!-- Users View (Admin Only) -->
+            <div id="usersView" style="display: none;">
+                <div class="content-header">
+                    <h1 class="content-title">
+                        <i class="bi bi-people" style="color: var(--info);"></i>
+                        Administrar Usuarios
+                    </h1>
+                    <p class="content-subtitle">Gestiona roles de usuarios del sistema</p>
+                </div>
+
+                <div class="modern-card">
+                    <div class="card-header-modern">
+                        <div class="card-title-modern">
+                            <i class="bi bi-person-lines-fill"></i>
+                            Lista de Usuarios
+                        </div>
+                    </div>
+                    <div id="usersList"></div>
+                </div>
+            </div>
+
+            <!-- Settings View -->
+            <div id="settingsView" style="display: none;">
+                <div class="content-header">
+                    <h1 class="content-title">
+                        <i class="bi bi-gear" style="color: var(--info);"></i>
+                        Configuración
+                    </h1>
+                    <p class="content-subtitle">Personaliza tu experiencia y gestiona tu cuenta</p>
+                </div>
+
+                <!-- Perfil del Usuario -->
+                <div class="modern-card">
+                    <div class="card-header-modern">
+                        <div class="card-title-modern">
+                            <i class="bi bi-person-circle"></i>
+                            Mi Perfil
+                        </div>
+                    </div>
+
+                    <form id="updateProfileForm">
+                        <div class="mb-4">
+                            <label class="form-label-modern">
+                                <i class="bi bi-person"></i>
+                                Nombre Completo
+                            </label>
+                            <input type="text" class="form-control-modern" id="settingsFullName" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label-modern">
+                                <i class="bi bi-envelope"></i>
+                                Correo Electrónico
+                            </label>
+                            <input type="email" class="form-control-modern" id="settingsEmail" required readonly style="opacity: 0.7; cursor: not-allowed;">
+                            <small style="color: var(--gray-500); display: block; margin-top: 0.5rem;">
+                                <i class="bi bi-info-circle"></i> El correo no puede ser modificado
+                            </small>
+                        </div>
+
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn-modern btn-success-modern">
+                                <i class="bi bi-check-circle"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Cambiar Contraseña -->
+                <div class="modern-card">
+                    <div class="card-header-modern">
+                        <div class="card-title-modern">
+                            <i class="bi bi-shield-lock"></i>
+                            Seguridad
+                        </div>
+                    </div>
+
+                    <form id="changePasswordForm">
+                        <div class="mb-4">
+                            <label class="form-label-modern">
+                                <i class="bi bi-lock"></i>
+                                Contraseña Actual
+                            </label>
+                            <input type="password" class="form-control-modern" id="currentPassword" required minlength="6">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label-modern">
+                                <i class="bi bi-lock-fill"></i>
+                                Nueva Contraseña
+                            </label>
+                            <input type="password" class="form-control-modern" id="newPassword" required minlength="6">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label-modern">
+                                <i class="bi bi-lock-fill"></i>
+                                Confirmar Nueva Contraseña
+                            </label>
+                            <input type="password" class="form-control-modern" id="confirmPassword" required minlength="6">
+                        </div>
+
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn-modern btn-primary-modern">
+                                <i class="bi bi-shield-check"></i> Cambiar Contraseña
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Información de la Cuenta -->
+                <div class="modern-card">
+                    <div class="card-header-modern">
+                        <div class="card-title-modern">
+                            <i class="bi bi-info-circle"></i>
+                            Información de la Cuenta
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                        <div style="background: rgba(99, 102, 241, 0.1); border-left: 4px solid var(--primary); padding: 1.5rem; border-radius: 12px;">
+                            <div style="font-size: 0.85rem; color: var(--gray-400); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">
+                                <i class="bi bi-shield-check"></i> Rol
+                            </div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #fff;" id="settingsUserRole"></div>
+                        </div>
+                        <div style="background: rgba(139, 92, 246, 0.1); border-left: 4px solid var(--secondary); padding: 1.5rem; border-radius: 12px;">
+                            <div style="font-size: 0.85rem; color: var(--gray-400); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">
+                                <i class="bi bi-calendar"></i> Miembro Desde
+                            </div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #fff;" id="settingsCreatedAt"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help View -->
+            <div id="helpView" style="display: none;">
+                <div class="content-header">
+                    <h1 class="content-title">
+                        <i class="bi bi-question-circle" style="color: var(--warning);"></i>
+                        Centro de Ayuda
+                    </h1>
+                    <p class="content-subtitle">Encuentra respuestas y aprende a usar el sistema</p>
+                </div>
+
+                <!-- Guía Rápida -->
+                <div class="modern-card">
+                    <div class="card-header-modern">
+                        <div class="card-title-modern">
+                            <i class="bi bi-lightning"></i>
+                            Guía Rápida
+                        </div>
+                    </div>
+
+                    <div style="display: grid; gap: 1.5rem;">
+                        <div class="survey-item-modern">
+                            <h5><i class="bi bi-1-circle" style="color: var(--primary);"></i> Crear una Encuesta</h5>
+                            <p>Haz clic en <strong>"Nueva Encuesta"</strong> en el menú lateral. Completa el título, descripción y agrega las preguntas que necesites. Puedes elegir entre preguntas de texto libre, calificación o opción múltiple.</p>
+                        </div>
+
+                        <div class="survey-item-modern">
+                            <h5><i class="bi bi-2-circle" style="color: var(--success);"></i> Responder Encuestas</h5>
+                            <p>Ve a <strong>"Responder"</strong>, selecciona la encuesta que deseas contestar y completa todas las preguntas. Tus respuestas se guardarán automáticamente.</p>
+                        </div>
+
+                        <div class="survey-item-modern">
+                            <h5><i class="bi bi-3-circle" style="color: var(--info);"></i> Ver Analíticas</h5>
+                            <p>Los administradores pueden acceder a <strong>"Analíticas"</strong> para ver estadísticas detalladas, gráficos y resúmenes de las respuestas de cada encuesta.</p>
+                        </div>
+
+                        <div class="survey-item-modern">
+                            <h5><i class="bi bi-4-circle" style="color: var(--warning);"></i> Gestionar Usuarios</h5>
+                            <p>Los administradores pueden ver la lista de usuarios, cambiar roles (Usuario/Administrador), editar información y eliminar cuentas desde el menú <strong>"Usuarios"</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preguntas Frecuentes -->
+                <div class="modern-card">
+                    <div class="card-header-modern">
+                        <div class="card-title-modern">
+                            <i class="bi bi-patch-question"></i>
+                            Preguntas Frecuentes
+                        </div>
+                    </div>
+
+                    <div style="display: grid; gap: 1.5rem;">
+                        <div class="question-card-modern">
+                            <h6><i class="bi bi-question-circle-fill" style="color: var(--primary);"></i> ¿Cómo puedo ver los resultados de una encuesta?</h6>
+                            <div class="text-responses-modern">
+                                Ve al menú <strong>"Analíticas"</strong>, selecciona la encuesta que deseas analizar y podrás ver gráficos, estadísticas y todas las respuestas recopiladas.
+                            </div>
+                        </div>
+
+                        <div class="question-card-modern">
+                            <h6><i class="bi bi-question-circle-fill" style="color: var(--success);"></i> ¿Puedo eliminar una encuesta después de crearla?</h6>
+                            <div class="text-responses-modern">
+                                Sí, si eres administrador puedes eliminar encuestas desde el <strong>"Dashboard"</strong> haciendo clic en el botón rojo "Eliminar". Esta acción eliminará la encuesta y todas sus respuestas.
+                            </div>
+                        </div>
+
+                        <div class="question-card-modern">
+                            <h6><i class="bi bi-question-circle-fill" style="color: var(--info);"></i> ¿Cómo cambio mi contraseña?</h6>
+                            <div class="text-responses-modern">
+                                Ve a <strong>"Configuración"</strong> en el menú lateral, en la sección "Seguridad" podrás ingresar tu contraseña actual y establecer una nueva.
+                            </div>
+                        </div>
+
+                        <div class="question-card-modern">
+                            <h6><i class="bi bi-question-circle-fill" style="color: var(--warning);"></i> ¿Puedo responder una encuesta múltiples veces?</h6>
+                            <div class="text-responses-modern">
+                                Sí, puedes responder la misma encuesta varias veces. Todas las respuestas quedan registradas con fecha y hora en el sistema.
+                            </div>
+                        </div>
+
+                        <div class="question-card-modern">
+                            <h6><i class="bi bi-question-circle-fill" style="color: var(--danger);"></i> ¿Qué diferencia hay entre Usuario y Administrador?</h6>
+                            <div class="text-responses-modern">
+                                Los <strong>Administradores</strong> pueden crear, eliminar encuestas, ver analíticas detalladas y gestionar usuarios. Los <strong>Usuarios</strong> solo pueden responder encuestas.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acerca de -->
+                <div class="modern-card">
+                    <div class="card-header-modern">
+                        <div class="card-title-modern">
+                            <i class="bi bi-info-square"></i>
+                            Acerca de la App
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; padding: 2rem;">
+                        <div class="logo-icon" style="margin: 0 auto 1.5rem; width: 64px; height: 64px; font-size: 2rem;">
+                            <i class="bi bi-clipboard-data"></i>
+                        </div>
+                        <h3 style="color: #fff; margin-bottom: 1rem;">Sistema de Encuestas</h3>
+                        <p style="color: var(--gray-400); max-width: 600px; margin: 0 auto 1.5rem; line-height: 1.8;">
+                            Esta app es una plataforma profesional para crear, gestionar y analizar encuestas. 
+                            Desarrollado con <strong>.NET 10</strong> y tecnologías modernas para ofrecer la mejor experiencia.
+                        </p>
+                        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                            <span class="badge-modern badge-primary-modern">
+                                <i class="bi bi-code-slash"></i> .NET 10
+                            </span>
+                            <span class="badge-modern badge-secondary-modern">
+                                <i class="bi bi-database"></i> SQL Server
+                            </span>
+                            <span class="badge-modern badge-primary-modern">
+                                <i class="bi bi-shield-check"></i> JWT Auth
+                            </span>
+                            <span class="badge-modern badge-secondary-modern">
+                                <i class="bi bi-graph-up"></i> Analytics
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="app.js"></script>
+    <script src="users.js"></script>
+    <script src="settings.js"></script>
+</body>
+</html>
