@@ -45,7 +45,10 @@ docker-compose.yml
 docker-helper.ps1
 
 # Scripts
-*.ps1
+run.ps1
+start.ps1
+start-docker.ps1
+docker-helper.ps1
 
 # Solution files
 *.sln
