@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  # Microservicio de Autenticación
+  auth-service:
+    build:
+      context: ./Ejemplo
+      dockerfile: ../microservices/auth-service/Dockerfile
+    container_name: surveyhub-auth-test
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=host.docker.internal;Database=SurveyHubDB;Integrated Security=True;TrustServerCertificate=True
+      - Jwt__Key=your-very-secret-key-min-32-characters-long-for-microservices!!
+      - Jwt__Issuer=SurveyHubAuthService
+      - Jwt__Audience=SurveyHubClient
+    ports:
+      - "5001:80"
+    networks:
+      - surveyhub-test-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Microservicio de Encuestas
+  surveys-service:
+    build:
+      context: ./Ejemplo
+      dockerfile: ../microservices/surveys-service/Dockerfile
+    container_name: surveyhub-surveys-test
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=host.docker.internal;Database=SurveyHubDB;Integrated Security=True;TrustServerCertificate=True
+      - AuthService__Url=http://auth-service
+    ports:
+      - "5002:80"
+    depends_on:
+      - auth-service
+    networks:
+      - surveyhub-test-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Microservicio de Respuestas
+  responses-service:
+    build:
+      context: ./Ejemplo
+      dockerfile: ../microservices/responses-service/Dockerfile
+    container_name: surveyhub-responses-test
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=host.docker.internal;Database=SurveyHubDB;Integrated Security=True;TrustServerCertificate=True
+      - AuthService__Url=http://auth-service
+      - SurveysService__Url=http://surveys-service
+    ports:
+      - "5003:80"
+    depends_on:
+      - auth-service
+      - surveys-service
+    networks:
+      - surveyhub-test-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Microservicio de Analíticas
+  analytics-service:
+    build:
+      context: ./Ejemplo
+      dockerfile: ../microservices/analytics-service/Dockerfile
+    container_name: surveyhub-analytics-test
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=host.docker.internal;Database=SurveyHubDB;Integrated Security=True;TrustServerCertificate=True
+      - AuthService__Url=http://auth-service
+      - ResponsesService__Url=http://responses-service
+    ports:
+      - "5004:80"
+    depends_on:
+      - auth-service
+      - responses-service
+    networks:
+      - surveyhub-test-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # API Gateway (Nginx como reverse proxy)
+  api-gateway:
+    build:
+      context: ./microservices/api-gateway
+      dockerfile: Dockerfile
+    container_name: surveyhub-gateway-test
+    ports:
+      - "8080:80"
+    depends_on:
+      - auth-service
+      - surveys-service
+      - responses-service
+      - analytics-service
+    networks:
+      - surveyhub-test-network
+
+  # Frontend (Nginx sirviendo archivos estáticos)
+  frontend:
+    build:
+      context: ./Ejemplo/wwwroot
+      dockerfile: ../../microservices/frontend/Dockerfile
+    container_name: surveyhub-frontend-test
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - surveyhub-test-network
+
+networks:
+  surveyhub-test-network:
+    driver: bridge
