@@ -1,0 +1,52 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache/options
+.vs/
+.vscode/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+
+# Files to exclude from repository
+METODOLOGIA_Y_DESARROLLO.md
+GUIA_PROPUESTA_PROYECTO.md
+INSTRUCCIONES.txt
+LEEME.txt
+
+# Docker
+.dockerignore
+docker-compose.yml
+docker-helper.ps1
+
+# Scripts
+*.ps1
+
+# Solution files
+*.sln
+*.slnx

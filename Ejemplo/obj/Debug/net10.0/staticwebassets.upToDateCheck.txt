@@ -1,0 +1,8 @@
+wwwroot\index.html
+wwwroot\users.js
+wwwroot\app.js
+wwwroot\settings.js
+C:\Users\USER\source\repos\Ejemplo\Ejemplo\wwwroot\index.html
+C:\Users\USER\source\repos\Ejemplo\Ejemplo\wwwroot\users.js
+C:\Users\USER\source\repos\Ejemplo\Ejemplo\wwwroot\app.js
+C:\Users\USER\source\repos\Ejemplo\Ejemplo\wwwroot\settings.js
