@@ -331,16 +331,16 @@ async function deleteSurvey(id, title) {
                 <div class="card-header-modern" style="border-bottom: 2px solid rgba(239, 68, 68, 0.3); margin-bottom: 1.5rem;">
                     <div class="card-title-modern">
                         <i class="bi bi-exclamation-triangle" style="background: linear-gradient(135deg, var(--danger), #dc2626);"></i>
-                        Confirmar Eliminación
+                        Confirmar Eliminacion
                     </div>
                 </div>
 
                 <div style="margin-bottom: 2rem;">
                     <p style="font-size: 1.1rem; color: var(--gray-300); margin-bottom: 1.5rem; line-height: 1.6;">
-                        ?? <strong>¡ADVERTENCIA!</strong> Esta acción no se puede deshacer.
+                        <i class="bi bi-exclamation-triangle-fill" style="color: var(--danger);"></i> <strong>ADVERTENCIA!</strong> Esta accion no se puede deshacer.
                     </p>
                     <p style="font-size: 1.05rem; color: var(--gray-400); margin-bottom: 1.5rem; line-height: 1.6;">
-                        ¿Estás seguro de que deseas eliminar la encuesta:
+                        Estas seguro de que deseas eliminar la encuesta:
                     </p>
                     <div style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--danger); padding: 1.25rem; border-radius: 12px; margin-bottom: 1.5rem;">
                         <p style="margin: 0; font-size: 1.15rem; color: #fff; font-weight: 700;">
@@ -350,14 +350,14 @@ async function deleteSurvey(id, title) {
                     <div style="background: rgba(239, 68, 68, 0.05); padding: 1rem; border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.2);">
                         <p style="margin: 0; font-size: 0.95rem; color: var(--gray-400); line-height: 1.5;">
                             <i class="bi bi-info-circle" style="color: var(--danger);"></i> 
-                            Se eliminarán todas las preguntas y respuestas asociadas a esta encuesta.
+                            Se eliminaran todas las preguntas y respuestas asociadas a esta encuesta.
                         </p>
                     </div>
                 </div>
 
                 <div class="d-flex gap-3">
                     <button class="btn-modern btn-danger-modern flex-grow-1" onclick="confirmDeleteSurvey(${id})">
-                        <i class="bi bi-trash"></i> Sí, Eliminar
+                        <i class="bi bi-trash"></i> Si, Eliminar
                     </button>
                     <button class="btn-modern btn-secondary-modern" onclick="closeDeleteSurveyModal()" style="padding: 1rem 2rem;">
                         <i class="bi bi-x-circle"></i> Cancelar
@@ -405,7 +405,7 @@ async function confirmDeleteSurvey(id) {
 
         notification.innerHTML = `
             <i class="bi bi-check-circle-fill" style="font-size: 1.75rem; color: var(--success);"></i>
-            <span style="color: #fff; font-weight: 600; font-size: 1rem; flex: 1;">¡Encuesta eliminada exitosamente!</span>
+            <span style="color: #fff; font-weight: 600; font-size: 1rem; flex: 1;">Encuesta eliminada exitosamente!</span>
             <button onclick="this.parentElement.remove()" style="background: none; border: none; color: var(--gray-400); cursor: pointer; font-size: 1.25rem; padding: 0; transition: color 0.2s;">
                 <i class="bi bi-x-lg"></i>
             </button>
