@@ -311,7 +311,7 @@ async function loadSurveys() {
                         </div>
                     </div>
                     ${isAdmin ? `
-                    <button class="btn-modern btn-danger-modern" onclick="deleteSurvey(${survey.id})">
+                    <button class="btn-modern btn-danger-modern" onclick="deleteSurvey(${survey.id}, '${survey.title.replace(/'/g, "\\'")}')">
                         <i class="bi bi-trash"></i> Eliminar
                     </button>
                     ` : ''}
@@ -324,14 +324,139 @@ async function loadSurveys() {
     }
 }
 
-async function deleteSurvey(id) {
-    if (!confirm('Esta seguro de eliminar esta encuesta?')) return;
+async function deleteSurvey(id, title) {
+    const modalHTML = `
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); z-index: 9999; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s ease;" id="deleteSurveyModal">
+            <div class="modern-card" style="max-width: 500px; width: 90%; margin: 1rem; animation: slideUp 0.3s ease;">
+                <div class="card-header-modern" style="border-bottom: 2px solid rgba(239, 68, 68, 0.3); margin-bottom: 1.5rem;">
+                    <div class="card-title-modern">
+                        <i class="bi bi-exclamation-triangle" style="background: linear-gradient(135deg, var(--danger), #dc2626);"></i>
+                        Confirmar Eliminación
+                    </div>
+                </div>
 
+                <div style="margin-bottom: 2rem;">
+                    <p style="font-size: 1.1rem; color: var(--gray-300); margin-bottom: 1.5rem; line-height: 1.6;">
+                        ?? <strong>¡ADVERTENCIA!</strong> Esta acción no se puede deshacer.
+                    </p>
+                    <p style="font-size: 1.05rem; color: var(--gray-400); margin-bottom: 1.5rem; line-height: 1.6;">
+                        ¿Estás seguro de que deseas eliminar la encuesta:
+                    </p>
+                    <div style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--danger); padding: 1.25rem; border-radius: 12px; margin-bottom: 1.5rem;">
+                        <p style="margin: 0; font-size: 1.15rem; color: #fff; font-weight: 700;">
+                            <i class="bi bi-clipboard-check" style="color: var(--danger);"></i> ${title}
+                        </p>
+                    </div>
+                    <div style="background: rgba(239, 68, 68, 0.05); padding: 1rem; border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.2);">
+                        <p style="margin: 0; font-size: 0.95rem; color: var(--gray-400); line-height: 1.5;">
+                            <i class="bi bi-info-circle" style="color: var(--danger);"></i> 
+                            Se eliminarán todas las preguntas y respuestas asociadas a esta encuesta.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <button class="btn-modern btn-danger-modern flex-grow-1" onclick="confirmDeleteSurvey(${id})">
+                        <i class="bi bi-trash"></i> Sí, Eliminar
+                    </button>
+                    <button class="btn-modern btn-secondary-modern" onclick="closeDeleteSurveyModal()" style="padding: 1rem 2rem;">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function closeDeleteSurveyModal() {
+    const modal = document.getElementById('deleteSurveyModal');
+    if (modal) {
+        modal.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => modal.remove(), 300);
+    }
+}
+
+async function confirmDeleteSurvey(id) {
     try {
         await authenticatedFetch(`${API_URL}/api/surveys/${id}`, { method: 'DELETE' });
+        closeDeleteSurveyModal();
+
+        // Show success notification
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 2rem;
+            z-index: 10000;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(24px);
+            border: 2px solid var(--success);
+            border-radius: 16px;
+            padding: 1.25rem 1.75rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(16, 185, 129, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 350px;
+            animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        `;
+
+        notification.innerHTML = `
+            <i class="bi bi-check-circle-fill" style="font-size: 1.75rem; color: var(--success);"></i>
+            <span style="color: #fff; font-weight: 600; font-size: 1rem; flex: 1;">¡Encuesta eliminada exitosamente!</span>
+            <button onclick="this.parentElement.remove()" style="background: none; border: none; color: var(--gray-400); cursor: pointer; font-size: 1.25rem; padding: 0; transition: color 0.2s;">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
+
         loadSurveys();
     } catch (error) {
         console.error('Error deleting survey:', error);
+        closeDeleteSurveyModal();
+
+        // Show error notification
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 2rem;
+            z-index: 10000;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(24px);
+            border: 2px solid var(--danger);
+            border-radius: 16px;
+            padding: 1.25rem 1.75rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(239, 68, 68, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 350px;
+            animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        `;
+
+        notification.innerHTML = `
+            <i class="bi bi-exclamation-triangle-fill" style="font-size: 1.75rem; color: var(--danger);"></i>
+            <span style="color: #fff; font-weight: 600; font-size: 1rem; flex: 1;">Error al eliminar la encuesta</span>
+            <button onclick="this.parentElement.remove()" style="background: none; border: none; color: var(--gray-400); cursor: pointer; font-size: 1.25rem; padding: 0; transition: color 0.2s;">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
     }
 }
 
